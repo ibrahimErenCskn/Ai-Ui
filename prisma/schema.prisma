@@ -1,0 +1,176 @@
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id            String          @id @default(cuid())
+  name          String?
+  username      String?         @unique
+  email         String?         @unique
+  emailVerified DateTime?
+  image         String?
+  accounts      Account[]
+  sessions      Session[]
+  // Optional for WebAuthn support
+  Authenticator Authenticator[]
+
+  // UI Bileşenleri ile ilişkiler
+  components Component[] // Kullanıcının oluşturduğu bileşenler
+  likes      Like[] // Kullanıcının beğendiği bileşenler
+  comments   Comment[] // Kullanıcının yaptığı yorumlar
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Account {
+  id                       String  @id @default(cuid())
+  userId                   String  @unique
+  type                     String
+  provider                 String
+  providerAccountId        String
+  refresh_token            String? @db.Text
+  access_token             String? @db.Text
+  expires_at               Int?
+  token_type               String?
+  scope                    String?
+  id_token                 String? @db.Text
+  session_state            String?
+  refresh_token_expires_in Int?
+  user                     User?   @relation(fields: [userId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([provider, providerAccountId])
+  @@index([userId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+}
+
+model VerificationToken {
+  identifier String
+  token      String
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+// Optional for WebAuthn support
+model Authenticator {
+  credentialID         String  @unique
+  userId               String
+  providerAccountId    String
+  credentialPublicKey  String
+  counter              Int
+  credentialDeviceType String
+  credentialBackedUp   Boolean
+  transports           String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([userId, credentialID])
+}
+
+// UI Bileşenleri için modeller
+
+// Bileşen modeli
+model Component {
+  id          String  @id @default(cuid())
+  name        String
+  description String? @db.Text
+  code        String  @db.LongText // Bileşenin kodu
+  previewUrl  String? // Bileşenin önizleme görseli URL'si
+
+  // Bileşen meta verileri
+  status    ComponentStatus @default(DRAFT) // Bileşenin durumu (taslak, yayınlandı, vb.)
+  viewCount Int             @default(0) // Görüntülenme sayısı
+
+  // Teknolojiler ve etiketler
+  technologies Technology[] // Bileşenin kullandığı teknolojiler
+  tags         Tag[] // Bileşenin etiketleri
+
+  // İlişkiler
+  userId   String // Bileşeni oluşturan kullanıcı
+  user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  likes    Like[] // Bileşene verilen beğeniler
+  comments Comment[] // Bileşene yapılan yorumlar
+
+  // Zaman damgaları
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  publishedAt DateTime? // Yayınlanma tarihi
+
+  @@index([userId])
+  @@index([status])
+}
+
+// Bileşen durumu için enum
+enum ComponentStatus {
+  DRAFT // Taslak
+  PUBLISHED // Yayınlandı
+  ARCHIVED // Arşivlendi
+}
+
+// Teknoloji modeli
+model Technology {
+  id         String      @id @default(cuid())
+  name       String      @unique
+  components Component[]
+
+  @@index([name])
+}
+
+// Etiket modeli
+model Tag {
+  id         String      @id @default(cuid())
+  name       String      @unique
+  components Component[]
+
+  @@index([name])
+}
+
+// Beğeni modeli
+model Like {
+  id          String    @id @default(cuid())
+  componentId String
+  component   Component @relation(fields: [componentId], references: [id], onDelete: Cascade)
+  userId      String
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt   DateTime  @default(now())
+
+  @@unique([componentId, userId]) // Bir kullanıcı bir bileşeni sadece bir kez beğenebilir
+  @@index([componentId])
+  @@index([userId])
+}
+
+// Yorum modeli
+model Comment {
+  id          String    @id @default(cuid())
+  content     String    @db.Text
+  componentId String
+  component   Component @relation(fields: [componentId], references: [id], onDelete: Cascade)
+  userId      String
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([componentId])
+  @@index([userId])
+}

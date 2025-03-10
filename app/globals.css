@@ -1,0 +1,170 @@
+@import "tailwindcss";
+
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+  --primary: #3b82f6;
+  --primary-dark: #2563eb;
+  --secondary: #8b5cf6;
+  --secondary-dark: #7c3aed;
+  --typing-speed: 3s;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-primary: var(--primary);
+  --color-primary-dark: var(--primary-dark);
+  --color-secondary: var(--secondary);
+  --color-secondary-dark: var(--secondary-dark);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+    --primary: #3b82f6;
+    --primary-dark: #60a5fa;
+    --secondary: #8b5cf6;
+    --secondary-dark: #a78bfa;
+  }
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans), Arial, Helvetica, sans-serif;
+}
+
+/* Özel Scroll Bar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #d1d5db;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #9ca3af;
+}
+
+@media (prefers-color-scheme: dark) {
+  ::-webkit-scrollbar-thumb {
+    background: #374151;
+  }
+  
+  ::-webkit-scrollbar-thumb:hover {
+    background: #4b5563;
+  }
+}
+
+/* Scrollbar Styles */
+.scrollbar-thin::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-track {
+  background: var(--scrollbar-track, #f1f1f1);
+  border-radius: 4px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  background: var(--scrollbar-thumb, #888);
+  border-radius: 4px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb:hover {
+  background: var(--scrollbar-thumb-hover, #555);
+}
+
+.dark .scrollbar-thin::-webkit-scrollbar-track {
+  --scrollbar-track: #2d3748;
+}
+
+.dark .scrollbar-thin::-webkit-scrollbar-thumb {
+  --scrollbar-thumb: #4a5568;
+}
+
+.dark .scrollbar-thin::-webkit-scrollbar-thumb:hover {
+  --scrollbar-thumb-hover: #718096;
+}
+
+/* Prism.js Customizations */
+.line-numbers .line-numbers-rows {
+  border-right: 2px solid #718096;
+  padding-right: 5px;
+}
+
+.dark .line-numbers .line-numbers-rows {
+  border-right-color: #4a5568;
+}
+
+.line-numbers-rows > span:before {
+  color: #a0aec0 !important;
+}
+
+.dark .line-numbers-rows > span:before {
+  color: #718096 !important;
+}
+
+/* Code block cursor effect */
+.language-jsx::after,
+.language-tsx::after,
+.language-javascript::after,
+.language-typescript::after,
+.language-css::after,
+.language-scss::after {
+  content: "";
+  position: relative;
+  display: inline-block;
+  width: 2px;
+  height: 1.2em;
+  background-color: #718096;
+  animation: cursor-blink 1.2s infinite;
+  vertical-align: text-bottom;
+  margin-left: 2px;
+}
+
+@keyframes cursor-blink {
+  0% { opacity: 1; }
+  50% { opacity: 0; }
+  100% { opacity: 1; }
+}
+
+/* Kod Yazma Animasyonu */
+.code-typing-container {
+  white-space: pre-wrap;
+  font-family: monospace;
+  line-height: 1.5;
+}
+
+.cursor {
+  display: inline-block;
+  width: 0.6em;
+  height: 1.2em;
+  margin-left: 2px;
+  vertical-align: middle;
+}
+
+.cursor.blinking {
+  animation: blink 1s step-end infinite;
+}
+
+.cursor.hidden {
+  opacity: 0;
+}
+
+@keyframes blink {
+  from, to { opacity: 1; }
+  50% { opacity: 0; }
+}
